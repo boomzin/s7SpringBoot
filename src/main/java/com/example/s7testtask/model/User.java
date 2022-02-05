@@ -1,7 +1,6 @@
 package com.example.s7testtask.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.OnDelete;
@@ -19,7 +18,7 @@ import java.util.Set;
 @Access(AccessType.FIELD)
 public class User implements Persistable<Integer> {
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
@@ -69,7 +68,6 @@ public class User implements Persistable<Integer> {
     private Set<Role> roles;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JsonManagedReference
     @JoinTable(name = "friendship",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "friend_id", referencedColumnName = "id"),
@@ -169,6 +167,10 @@ public class User implements Persistable<Integer> {
 
     public void setFriends(List<User> friends) {
         this.friends = friends;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
     public boolean addOrRemoveFriend(User friend) {

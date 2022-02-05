@@ -19,7 +19,7 @@ public class UserController {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(UserController.class);
     static final String REST_URL = "/api/users";
 
-    private UserRepository repository;
+    private final UserRepository repository;
 
     public UserController(UserRepository repository) {
         this.repository = repository;
