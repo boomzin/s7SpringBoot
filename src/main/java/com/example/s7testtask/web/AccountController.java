@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -56,5 +57,15 @@ public class AccountController {
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL).build().toUri();
         return ResponseEntity.created(uriOfNewResource).body(created);
+    }
+
+    @Transactional
+    @PatchMapping("/add-or-remove-friend")
+    public User addOrRemoveFriend (@RequestParam int id, @AuthenticationPrincipal AuthUser authUser) {
+        User user = repository.getWithFriends(authUser.id()).get();
+        User friend = repository.findById(id).get();
+        log.info(user.getFriends().contains(friend) ? "delete from friends {} for user {}" : "add into friends {} for user {}", friend.id(), user.id());
+        user.addOrRemoveFriend(friend);
+        return repository.save(user);
     }
 }
