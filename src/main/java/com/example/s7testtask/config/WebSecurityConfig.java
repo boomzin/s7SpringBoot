@@ -31,17 +31,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         this.userRepository = userRepository;
     }
 
-    @SuppressWarnings("deprecation")
     @Bean
     public PasswordEncoder passwordEncoder() {
-        DelegatingPasswordEncoder delegatingPasswordEncoder =
-                (DelegatingPasswordEncoder) PasswordEncoderFactories
-                        .createDelegatingPasswordEncoder();
-
-        delegatingPasswordEncoder
-                .setDefaultPasswordEncoderForMatches(NoOpPasswordEncoder.getInstance());
-
-        return delegatingPasswordEncoder;
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
