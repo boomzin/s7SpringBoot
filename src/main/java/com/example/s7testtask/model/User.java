@@ -3,11 +3,16 @@ package com.example.s7testtask.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.util.ProxyUtils;
+import org.springframework.util.Assert;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -53,6 +58,16 @@ public class User implements Persistable<Integer> {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"),
+            uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "role"}, name = "uk_user_roles")})
+    @Column(name = "role")
+    @ElementCollection(fetch = FetchType.EAGER)
+    @BatchSize(size = 200)
+    @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<Role> roles;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JsonManagedReference
     @JoinTable(name = "friendship",
@@ -72,6 +87,11 @@ public class User implements Persistable<Integer> {
         }
         User that = (User) o;
         return id != null && id.equals(that.id);
+    }
+
+    public int id() {
+        Assert.notNull(id, "Entity must have id");
+        return id;
     }
 
     @Override
@@ -109,6 +129,10 @@ public class User implements Persistable<Integer> {
 
     public List<User> getFriends() {
         return friends;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
     }
 
     public void setId(Integer id) {

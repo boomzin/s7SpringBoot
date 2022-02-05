@@ -1,7 +1,3 @@
-DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS friendship;
-DROP SEQUENCE IF EXISTS global_seq;
-
 CREATE SEQUENCE global_seq START WITH 100000;
 
 CREATE TYPE status AS ENUM ('OPEN', 'TAKEN');
@@ -20,6 +16,14 @@ CREATE TABLE users
     CONSTRAINT USER_PRIMARY_KEY PRIMARY KEY (id)
 );
 CREATE UNIQUE INDEX users_unique_email_idx ON users (email);
+
+CREATE TABLE user_roles
+(
+    user_id INTEGER NOT NULL,
+    role    VARCHAR,
+    CONSTRAINT user_roles_idx UNIQUE (user_id, role),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
 
 CREATE TABLE friendship
 (

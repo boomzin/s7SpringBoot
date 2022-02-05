@@ -1,6 +1,7 @@
 package com.example.s7testtask.repository;
 
 import com.example.s7testtask.model.User;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -15,4 +16,7 @@ public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecifi
     @EntityGraph(attributePaths = {"friends"}, type = EntityGraph.EntityGraphType.LOAD)
     @Query("SELECT u FROM User u WHERE u.id=?1")
     Optional<User> getWithFriends(int id);
+
+    @Query("SELECT u FROM User u WHERE u.email = LOWER(:email)")
+    Optional<User> findByEmailIgnoreCase(String email);
 }
