@@ -1,5 +1,6 @@
 package com.example.s7testtask.web;
 
+import com.example.s7testtask.error.IllegalRequestDataException;
 import com.example.s7testtask.model.Role;
 import com.example.s7testtask.model.User;
 import com.example.s7testtask.repository.UserRepository;
@@ -35,13 +36,15 @@ public class AccountController {
     @GetMapping
     public User get(@AuthenticationPrincipal AuthUser authUser) {
         log.info("get account {}", authUser.id());
-        return authUser.getUser();
+        return repository.findById(authUser.id()).orElseThrow(
+                () -> new IllegalRequestDataException("User with id=" + authUser.id() + " does not exist"));
     }
 
     @GetMapping("/friends")
     public List<User> getFriends(@AuthenticationPrincipal AuthUser authUser) {
         log.info("get friends for account {}", authUser.id());
-        User user = repository.getWithFriends(authUser.id()).orElseThrow();
+        User user = repository.getWithFriends(authUser.id()).orElseThrow(
+                () -> new IllegalRequestDataException("User with id=" + authUser.id() + " does not exist"));
         return user.getFriends();
     }
 
@@ -62,8 +65,10 @@ public class AccountController {
     @Transactional
     @PatchMapping("/add-or-remove-friend")
     public User addOrRemoveFriend (@RequestParam int id, @AuthenticationPrincipal AuthUser authUser) {
-        User user = repository.getWithFriends(authUser.id()).get();
-        User friend = repository.findById(id).get();
+        User user = repository.getWithFriends(authUser.id()).orElseThrow(
+                () -> new IllegalRequestDataException("User with id=" + authUser.id() + " does not exist"));
+        User friend = repository.findById(id).orElseThrow(
+                () -> new IllegalRequestDataException("User with id=" + id + " does not exist"));
         log.info(user.getFriends().contains(friend) ? "delete from friends {} for user {}" : "add into friends {} for user {}", friend.id(), user.id());
         user.addOrRemoveFriend(friend);
         return repository.save(user);
