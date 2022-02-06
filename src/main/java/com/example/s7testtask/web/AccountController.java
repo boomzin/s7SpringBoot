@@ -10,9 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.EnumSet;
 import java.util.List;
@@ -28,9 +30,17 @@ public class AccountController {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
 
-    public AccountController(UserRepository repository, PasswordEncoder passwordEncoder) {
+    private UniqueMailValidator uniqueMailValidator;
+
+    @InitBinder
+    protected void initBinder(WebDataBinder binder) {
+        binder.addValidators(uniqueMailValidator);
+    }
+
+    public AccountController(UserRepository repository, PasswordEncoder passwordEncoder, UniqueMailValidator uniqueMailValidator) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
+        this.uniqueMailValidator = uniqueMailValidator;
     }
 
     @GetMapping
@@ -50,7 +60,7 @@ public class AccountController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<User> register(@RequestBody User user) {
+    public ResponseEntity<User> register(@Valid @RequestBody User user) {
         log.info("register {}", user);
         checkNew(user);
         user.setEmail(user.getEmail().toLowerCase());

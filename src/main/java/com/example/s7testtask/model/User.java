@@ -10,6 +10,7 @@ import org.springframework.data.util.ProxyUtils;
 import org.springframework.util.Assert;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Set;
 
@@ -34,16 +35,23 @@ public class User implements Persistable<Integer> {
     }
 
     @Column(name = "email", nullable = false, unique = true)
+    @Email
+    @NotBlank
+    @Size(max = 100)
     private String email;
 
     @Column(name = "password", nullable = false)
+    @Size(min = 4, max = 256)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Column(name = "name", nullable = false)
+    @NotBlank
+    @Size(min = 2, max = 100)
     private String name;
 
     @Column(name = "age", nullable = false)
+    @Min(8)
     private Integer age;
 
     @Column(name = "has_photo", nullable = false, columnDefinition = "bool default false")
@@ -51,10 +59,12 @@ public class User implements Persistable<Integer> {
 
     @Column(name = "gender", nullable = false)
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Gender gender;
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Status status;
 
     @Enumerated(EnumType.STRING)

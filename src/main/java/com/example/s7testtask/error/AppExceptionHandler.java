@@ -6,6 +6,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.lang.NonNull;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -14,6 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.springframework.boot.web.error.ErrorAttributeOptions.Include.MESSAGE;
 
@@ -50,6 +55,28 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
                 ErrorAttributeOptions.of(MESSAGE),
                 errorMessage,
                 ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @NonNull
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return handleBindingErrors(ex.getBindingResult(), request);
+    }
+
+    @NonNull
+    @Override
+    protected ResponseEntity<Object> handleBindException(
+            BindException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+        return handleBindingErrors(ex.getBindingResult(), request);
+    }
+
+    private ResponseEntity<Object> handleBindingErrors(BindingResult result, WebRequest request) {
+        String msg = result.getFieldErrors().stream()
+                .map(fe -> String.format("[%s] %s", fe.getField(), fe.getDefaultMessage()))
+                .collect(Collectors.joining("\n"));
+        return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.defaults(), msg, null), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     private Map<String, Object> getDefaultBody(WebRequest request, ErrorAttributeOptions options, String msg, String debugMsg) {
