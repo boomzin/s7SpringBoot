@@ -4,6 +4,8 @@ import com.example.s7testtask.model.Gender;
 import com.example.s7testtask.model.Status;
 import com.example.s7testtask.model.User;
 import com.example.s7testtask.repository.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,8 @@ import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping(value = UserController.REST_URL)
+@Tag(name = "Контроллер для работы с коллекцией пользователей",
+        description = "Позволяет просмотреть всех пользователей, конкретного пользователя со списком друзей, искать пользователей по заданным критериям")
 public class UserController {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(UserController.class);
     static final String REST_URL = "/api/users";
@@ -25,6 +29,7 @@ public class UserController {
         this.repository = repository;
     }
 
+    @Operation(summary = "Просмотр списка всех пользователей")
     @GetMapping
     public List<User> getAll() {
         log.info("getAll");
@@ -32,18 +37,28 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Просмотр данных конкретного пользователя")
     public ResponseEntity<User> get(@PathVariable int id) {
         log.info("get user {}", id);
         return ResponseEntity.of(repository.findById(id));
     }
 
     @GetMapping("/{id}/with-friends")
+    @Operation(summary = "Просмотр данных конкретного пользователя вместе со списком его друзей")
     public ResponseEntity<User> getWithFriends(@PathVariable int id) {
         log.info("get id {} with friends", id);
         return ResponseEntity.of(repository.getWithFriends(id));
     }
 
     @GetMapping("/search")
+    @Operation(summary = "Поиск пользователей по критериям",
+            description = "В качестве критерия поиска можно задать произвольный набор из полей: почта, имя, возраст, наличие фото,пол, семейное положение. " +
+                    "В параметрах запроса для полей почта, имя и возраст первым символом опционально можно указать дополнительные условия:" + "\n" +
+                    "\\> - искать больше передаваемого значения, " +
+                    "< - искать меньше передаваемого значения. " +
+                    "В параметрах запроса для полей почта и имя первым символом опционально можно указать дополнительные условие:" + "\n" +
+                    "~ - передаваемая строка содержится в искомой. " +
+                    "Параметр запроса без спец символов будет искаться по полному совпадению.")
     public List<User> searchWithCriteria(@RequestParam(required = false) Optional<String> email,
                                          @RequestParam(required = false) Optional<String> name,
                                          @RequestParam(required = false) Optional<String> age,

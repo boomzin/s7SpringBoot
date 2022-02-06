@@ -2,6 +2,7 @@ package com.example.s7testtask.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -17,10 +18,12 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 @Access(AccessType.FIELD)
+@Schema(description = "Сущность пользователя")
 public class User implements Persistable<Integer> {
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Integer id;
 
     @Override
@@ -55,16 +58,19 @@ public class User implements Persistable<Integer> {
     private Integer age;
 
     @Column(name = "has_photo", nullable = false, columnDefinition = "bool default false")
+    @Schema(defaultValue = "FALSE")
     private boolean hasPhoto;
 
     @Column(name = "gender", nullable = false)
     @Enumerated(EnumType.STRING)
     @NotNull
+    @Schema(defaultValue = "MALE")
     private Gender gender;
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     @NotNull
+    @Schema(defaultValue = "OPEN")
     private Status status;
 
     @Enumerated(EnumType.STRING)
@@ -75,6 +81,7 @@ public class User implements Persistable<Integer> {
     @BatchSize(size = 200)
     @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Set<Role> roles;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -83,6 +90,7 @@ public class User implements Persistable<Integer> {
             inverseJoinColumns = @JoinColumn(name = "friend_id", referencedColumnName = "id"),
             uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "friend_id"}, name = "uk_user_friend")}
     )
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private List<User> friends;
 
     @Override

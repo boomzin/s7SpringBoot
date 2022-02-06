@@ -15,6 +15,7 @@
     <description>s7testtask</description>
     <properties>
         <java.version>11</java.version>
+        <springdoc.version>1.6.5</springdoc.version>
     </properties>
     <dependencies>
         <dependency>
@@ -50,6 +51,20 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+
+        <!--Swagger-->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-security</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
+
+
 
     </dependencies>
 
