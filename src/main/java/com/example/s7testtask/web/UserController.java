@@ -48,8 +48,8 @@ public class UserController {
                                          @RequestParam(required = false) Optional<String> name,
                                          @RequestParam(required = false) Optional<String> age,
                                          @RequestParam(required = false) Optional<Boolean> hasPhoto,
-                                         @RequestParam(required = false) Optional<String> gender,
-                                         @RequestParam(required = false) Optional<String> status
+                                         @RequestParam(required = false) Gender gender,
+                                         @RequestParam(required = false) Status status
     ) {
         log.info("search users");
         UserSearchCriteria userSearch = new UserSearchCriteria();
@@ -57,9 +57,12 @@ public class UserController {
         name.ifPresent(string -> createSearchCriteria(userSearch, "name", string));
         age.ifPresent(string -> createSearchCriteria(userSearch, "age", string));
         hasPhoto.ifPresent(aBoolean -> userSearch.add(new SearchCriteria("hasPhoto", ":", aBoolean)));
-        gender.ifPresent(string -> userSearch.add(new SearchCriteria("gender", ":", Gender.valueOf(string.toUpperCase()))));
-        status.ifPresent(string -> userSearch.add(new SearchCriteria("status", ":", Status.valueOf(string.toUpperCase()))));
-
+        if (!(gender == null)) {
+            userSearch.add(new SearchCriteria("gender", ":", gender));
+        }
+        if (!(status == null)) {
+            userSearch.add(new SearchCriteria("status", ":", status));
+        }
         return repository.findAll(userSearch);
     }
 
